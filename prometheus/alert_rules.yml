@@ -1,0 +1,29 @@
+groups:
+  - name: instance-health
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокая нагрузка CPU на {{ $labels.instance }}"
+          description: "CPU использование выше 80% в течение 1 минуты"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое использование памяти на {{ $labels.instance }}"
+          description: "Использование памяти выше 80%"
+
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 80
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Мало места на диске {{ $labels.instance }}"
+          description: "Свободного места меньше 20%"
